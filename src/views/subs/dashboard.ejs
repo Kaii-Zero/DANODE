@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100 p-6">
+
+<h1 class="text-2xl font-bold mb-6 text-center">
+    Dashboard dịch vụ của tôi
+</h1>
+
+<!-- STATS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- CỘT TRÁI -->
+    <div class="flex flex-col gap-3 max-w-[430px] ml-10">
+
+        <!-- Tổng dịch vụ -->
+        <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
+            <h2 class="text-gray-500 text-sm">Tổng dịch vụ</h2>
+            <p class="text-2xl font-bold mt-2 text-blue-600">
+                <%= totalServices %>
+            </p>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
+    <h2 class="text-gray-500">Tổng số gói đã mua</h2>
+
+    <p class="text-2xl font-bold mt-2 text-blue-600">
+        <%= totalQuantity %>
+    </p>
+</div>
+
+        <!-- Chi phí tháng -->
+        <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
+            <h2 class="text-gray-500 text-sm">Chi phí tháng</h2>
+
+            <p class="text-2xl font-bold mt-2 text-green-600">
+                $<%= totalCost %>
+            </p>
+        </div>
+
+    </div>
+
+    <!-- CỘT PHẢI -->
+    <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow min-h-[280px] max-w-[1200px] mr-10 mb-10">
+
+        <h2 class="text-gray-500 text-lg">Sắp hết hạn</h2>
+
+        <div class="flex items-center gap-4 mt-4">
+
+            <p class="text-5xl font-bold text-red-500">
+                <%= expiringList.length %>
+            </p>
+
+            <div>
+                <p class="text-gray-700 font-medium">
+                    dịch vụ sắp hết hạn
+                </p>
+                <p class="text-sm text-gray-400">
+                    Kiểm tra để tránh gián đoạn sử dụng
+                </p>
+            </div>
+
+        </div>
+
+        <!-- LIST -->
+        <% if (expiringList.length > 0) { %>
+
+            <div class="mt-6 divide-y">
+
+                <% expiringList.forEach(sub => { %>
+
+                    <div class="flex justify-between items-center py-3">
+
+                        <div>
+                            <p class="font-semibold text-gray-800">
+                                <%= sub.name %>
+                            </p>
+
+                            <p class="text-sm text-gray-400">
+                                <%= sub.type || 'Service' %>
+                            </p>
+                        </div>
+
+                        <div class="text-right">
+
+                            <p class="text-sm text-gray-500">
+                                <%= new Date(sub.endDate).toLocaleDateString('vi-VN') %>
+                            </p>
+
+                            <p class="text-xs text-red-400">
+                                còn <%= sub.daysLeft %> ngày
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        <% } else { %>
+
+            <div class="mt-8 text-center text-gray-400">
+                Không có dịch vụ nào sắp hết hạn
+            </div>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- TABLE -->
+<div class="bg-white p-4 rounded shadow mb-6">
+
+    <h2 class="text-xl font-bold mb-4">Danh sách dịch vụ</h2>
+
+    <table class="w-full text-left border">
+
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-2">Tên</th>
+                <th class="p-2">Giá</th>
+                <th class="p-2">Trạng thái</th>
+                <th class="p-2">Còn lại</th>
+                <th class="p-2">Số lượng</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        <% subs.forEach(sub => { %>
+
+        <tr class="border-t">
+
+            <td class="p-2"><%= sub.name %></td>
+            <td class="p-2"><%= sub.totalPrice %></td>
+
+            <td class="p-2">
+                <span class="
+                    <%= sub.status === 'Hết hạn' ? 'text-red-500' : '' %>
+                    <%= sub.status === 'Sắp hết' ? 'text-yellow-500' : '' %>
+                    <%= sub.status === 'Còn hạn' ? 'text-green-500' : '' %>
+                ">
+                    <%= sub.status %>
+                </span>
+            </td>
+
+            <!-- ⏳ COUNTDOWN REALTIME -->
+            <td class="p-2">
+                <span class="countdown" data-end="<%= sub.endDate %>">
+                    --
+                </span>
+            </td>
+
+            
+            <td class="p-2">
+                <%= sub.quantity || 1 %>
+            </td>
+
+        </tr>
+
+        <% }) %>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- CHART -->
+<div class="bg-white p-4 rounded shadow">
+
+    <h2 class="text-xl font-bold mb-4">Biểu đồ chi phí</h2>
+
+    <canvas id="chart"></canvas>
+
+</div>
+
+<script>
+const ctx = document.getElementById('chart')
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: <%- JSON.stringify(subs.map(s => s.name)) %>,
+        datasets: [{
+            label: 'Chi phí',
+            data: <%- JSON.stringify(subs.map(s => s.price)) %>,
+            backgroundColor: <%- JSON.stringify(
+                subs.map(() => {
+                    const colors = [
+                        '#60a5fa',
+                        '#34d399',
+                        '#fbbf24',
+                        '#f472b6',
+                        '#a78bfa',
+                        '#fb7185',
+                        '#38bdf8'
+                    ]
+                    return colors[Math.floor(Math.random() * colors.length)]
+                })
+            ) %>
+        }]
+    }
+})
+
+/* ⏳ REALTIME COUNTDOWN */
+function updateCountdowns() {
+    const elements = document.querySelectorAll('.countdown')
+
+    elements.forEach(el => {
+        const end = new Date(el.dataset.end)
+        const now = new Date()
+
+        const diff = end - now
+
+        if (diff <= 0) {
+            el.innerText = "Hết hạn"
+            el.classList.add("text-red-500")
+            return
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24)
+
+        el.innerText = `${days}d ${hours}h`
+    })
+}
+
+updateCountdowns()
+setInterval(updateCountdowns, 60000)
+</script>
+
+
+</body>
+<style>
+    #myChart {
+        max-height: 200px;
+    }
+</style>
+</html>

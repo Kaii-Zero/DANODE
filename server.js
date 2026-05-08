@@ -96,41 +96,42 @@ const expressLayouts = require('express-ejs-layouts')
 
 const app = express()
 
-// ================= DB =================
+// DB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err))
 
-// ================= MIDDLEWARE =================
+// MIDDLEWARE
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(morgan('dev'))
 
-// ================= EJS LAYOUT =================
+// EJS LAYOUT
 app.use(expressLayouts)
 app.set('layout', 'layouts/main')
 
-// ================= VIEW =================
+// VIEW
 app.set('view engine', 'ejs')
 app.set('views', './src/views')
 
-// ================= STATIC =================
+// STATIC
 app.use(express.static('./src/publics'))
 
-// ================= ROUTES =================
+// ROUTES
 const mainRouter = require('./src/routes')
 const subRouter = require('./src/routes/subrouter')
 const dvRouter = require('./src/routes/dvrouter')
 
-// 👉 QUAN TRỌNG: mount rõ ràng
 app.use('/', mainRouter)
 app.use('/subs', subRouter)
 app.use('/dv', dvRouter)
 
-// ================= SERVER =================
+// SERVER PORT
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)
 })
+
+require('./src/services/cronService')

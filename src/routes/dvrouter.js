@@ -8,7 +8,7 @@ const admin = require('../helpers/admin')
 router.use(auth)
 
 
-// ================= LIST =================
+// LIST
 router.get('/', async (req, res) => {
 
     const services = await Service.find()
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 })
 
 
-// ================= CREATE FORM =================
+// CREATE FORM
 router.get('/create', admin, (req, res) => {
 
     res.render('dv/create')
@@ -28,7 +28,7 @@ router.get('/create', admin, (req, res) => {
 })
 
 
-// ================= CREATE HANDLE =================
+// CREATE HANDLE
 router.post('/create', admin, async (req, res) => {
 
     await Service.create({
@@ -47,7 +47,7 @@ router.post('/create', admin, async (req, res) => {
 })
 
 
-// ================= EDIT FORM =================
+// EDIT FORM
 router.get('/edit/:id', admin, async (req, res) => {
 
     const service = await Service.findById(req.params.id)
@@ -57,7 +57,7 @@ router.get('/edit/:id', admin, async (req, res) => {
 })
 
 
-// ================= UPDATE =================
+// UPDATE
 router.post('/edit/:id', async (req, res) => {
 
     await Service.findByIdAndUpdate(
@@ -70,7 +70,7 @@ router.post('/edit/:id', async (req, res) => {
 })
 
 
-// ================= DELETE =================
+// DELETE
 router.get('/delete/:id', admin, async (req, res) => {
 
     await Service.findByIdAndDelete(req.params.id)
@@ -79,7 +79,16 @@ router.get('/delete/:id', admin, async (req, res) => {
 
 })
 
-// Hide main.ejs
+// PAYMENT
+router.get('/payment/:id', async (req, res) => {
+
+    const sub = await Subscription.findById(req.params.id)
+
+    res.render('subs/payment', {
+        sub
+    })
+
+})
 
 
 module.exports = router

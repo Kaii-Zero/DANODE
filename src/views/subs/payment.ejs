@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white w-[440px] p-6 rounded-2xl shadow-xl">
+
+    <h1 class="text-xl font-bold text-center mb-4">
+        🛒 Thanh toán đơn hàng
+    </h1>
+
+    <img src="<%= sub.logo %>"
+         class="w-full h-40 object-cover rounded-lg mb-4">
+
+    <!-- INFO -->
+    <div class="space-y-3 text-gray-700">
+
+        <p><b>Dịch vụ:</b> <%= sub.name %></p>
+
+        <!-- QUANTITY -->
+        <div class="flex items-center justify-between">
+
+            <b>Số lượng:</b>
+
+            <div class="flex items-center border rounded-lg overflow-hidden">
+
+                <button type="button" onclick="changeQty(-1)" class="px-3 bg-gray-100">-</button>
+
+                <input id="qty"
+                       type="number"
+                       min="1"
+                       value="1"
+                       class="w-16 text-center outline-none"
+                       oninput="updateUI()">
+
+                <button type="button" onclick="changeQty(1)" class="px-3 bg-gray-100">+</button>
+
+            </div>
+        </div>
+
+        <!-- VOUCHER -->
+        <div>
+            <label class="text-sm font-semibold">Voucher</label>
+
+            <input id="voucher"
+                   type="number"
+                   placeholder="Nhập số tiền giảm"
+                   class="border w-full p-2 rounded mt-1"
+                   oninput="updateUI()">
+        </div>
+
+    </div>
+
+    <!-- BREAKDOWN -->
+    <div class="mt-4 bg-gray-50 p-3 rounded-lg text-sm space-y-2">
+
+        <div class="flex justify-between">
+            <span>Giá gốc:</span>
+            <span id="basePrice">0</span>
+        </div>
+
+        <div class="flex justify-between text-gray-500">
+            <span>Giảm giá:</span>
+            <span>- $<span id="discountMoney">0</span></span>
+        </div>
+
+        <div class="flex justify-between text-green-600">
+            <span>Voucher</span>
+            <span>- $<span id="voucherMoney">0</span></span>
+        </div>
+
+    </div>
+
+    <!-- TOTAL -->
+    <div class="text-center mt-4">
+        <p class="text-gray-500">Tổng thanh toán</p>
+
+        <p class="text-2xl font-bold text-green-600">
+            $<span id="totalPrice">0</span>
+        </p>
+    </div>
+
+    <!-- FORM -->
+    <form action="/subs/confirm" method="POST" class="mt-5">
+
+        <input type="hidden" name="subId" value="<%= sub._id %>">
+
+<input type="hidden" name="quantity" id="hiddenQty" value="1">
+
+<input type="hidden" name="voucher" id="hiddenVoucher" value="0">>
+
+        <button class="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded-lg font-semibold">
+            Thanh toán ngay
+        </button>
+
+    </form>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+const unitPrice = <%= service.price || 0 %>
+const discountRate = <%= service.discount || 0 %>
+function changeQty(val) {
+
+    const input = document.getElementById('qty')
+
+    let qty = Number(input.value || 1)
+
+    qty = qty + val
+
+    if (qty < 1) qty = 1
+
+    input.value = qty
+
+    syncHidden()
+}
+
+function syncHidden() {
+    document.getElementById('hiddenQty').value =
+        document.getElementById('qty').value
+}
+
+function updateUI() {
+    const qty = Number(document.getElementById('qty').value || 1)
+    const voucher = Number(document.getElementById('voucher').value || 0)
+
+    const base = unitPrice * qty
+    const discount = base * (discountRate / 100)
+
+    const total = base - discount - voucher
+
+    document.getElementById('basePrice').innerText = base
+    document.getElementById('discountPercent').innerText = discountRate
+    document.getElementById('discountMoney').innerText = discount
+    document.getElementById('voucherMoney').innerText = voucher
+    document.getElementById('totalPrice').innerText = total
+    syncHidden()
+}
+
+updateUI()
+</script>
+
+</body>
+</html>

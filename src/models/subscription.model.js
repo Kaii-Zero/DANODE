@@ -1,30 +1,39 @@
 const mongoose = require('mongoose')
 
 const subscriptionSchema = new mongoose.Schema({
-    name: {
+
+    userId: {
         type: String,
         required: true
     },
 
-    price: {
-        type: Number,
-        default: 0
+    serviceId: {
+        type: String,
+        required: true
     },
 
-    cycle: {
-        type: String, // monthly, yearly...
-        default: 'monthly'
-    },
-
-    renewalDate: {
-        type: Date
-    },
+    name: String,
+    price: Number,
+    type: String,
+    provider: String,
+    logo: String,
+    endDate: Date,
 
     status: {
         type: String,
-        enum: ['active', 'expired'],
-        default: 'active'
-    }
-}, { timestamps: true })
+        default: 'pending' // pending | paid | expired
+    },
+
+    startDate: {
+        type: Date,
+        default: Date.now
+    },
+    quantity: {
+        type: Number,
+        default: 1
+    },
+
+    endDate: Date
+})
 
 module.exports = mongoose.model('Subscription', subscriptionSchema)

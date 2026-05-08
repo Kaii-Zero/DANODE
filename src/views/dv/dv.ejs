@@ -34,6 +34,7 @@
                 <th class="p-3">Gói</th>
                 <th class="p-3">Provider</th>
                 <th class="p-3">Action</th>
+                <th class="p-3">Đăng ký</th>
             </tr>
 
         </thead>
@@ -71,6 +72,22 @@
                             <a href="/dv/delete/<%= service._id %>" class="text-red-500">Xóa</a>
 
                         </td>
+
+                        <td class="p-3">
+
+                        <form action="/subs/create" method="POST">
+
+                            <input type="hidden" name="serviceId" value="<%= service._id %>">
+
+                            <button
+                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                            >
+                                Đăng ký
+                            </button>
+
+                        </form>
+
+                    </td>
 
                     </tr>
 

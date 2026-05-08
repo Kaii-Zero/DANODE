@@ -156,7 +156,7 @@ const User = require('../models/user.model')
 const auth = require('../helpers/auth')
 
 
-// ================= LOGIN PAGE =================
+// LOGIN PAGE
 
 router.get('/login', (req, res) => {
 
@@ -167,7 +167,7 @@ router.get('/login', (req, res) => {
 })
 
 
-// ================= REGISTER PAGE =================
+// REGISTER PAGE
 
 router.get('/register', (req, res) => {
     res.render('auth/register', {
@@ -177,7 +177,7 @@ router.get('/register', (req, res) => {
 })
 
 
-// ================= REGISTER HANDLE =================
+// REGISTER HANDLE
 
 router.post('/register', async (req, res) => {
 
@@ -215,7 +215,7 @@ router.post('/register', async (req, res) => {
 })
 
 
-// ================= LOGIN HANDLE =================
+// LOGIN HANDLE
 
 router.post('/login', async (req, res) => {
 
@@ -282,7 +282,7 @@ router.post('/login', async (req, res) => {
 })
 
 
-// ================= HOME =================
+// HOME
 
 router.get('/', auth, async (req, res) => {
 
@@ -296,7 +296,7 @@ router.get('/', auth, async (req, res) => {
 })
 
 
-// ================= LOGOUT =================
+// LOGOUT
 
 router.get('/logout', (req, res) => {
 
@@ -304,6 +304,16 @@ router.get('/logout', (req, res) => {
 
     res.redirect('/login')
 
+})
+
+// PAYMENT
+router.post('/payment/:id', async (req, res) => {
+
+    await Subscription.findByIdAndUpdate(req.params.id, {
+        status: 'paid'
+    })
+
+    res.redirect('/subs')
 })
 
 

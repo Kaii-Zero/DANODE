@@ -2,23 +2,21 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <title>Thêm dịch vụ</title>
-
 </head>
 
-<body class="flex items-center justify-center min-h-screen bg-gray-100">
+<body class="bg-gray-100">
+
+<!-- CONTAINER CENTER CHUẨN -->
+<div class="min-h-screen flex items-center justify-center px-4">
 
     <form
         action="/dv/create"
         method="POST"
-        class="bg-white p-8 rounded-2xl shadow-xl w-[450px]"
+        class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-[450px]"
     >
 
         <!-- TITLE -->
@@ -83,7 +81,6 @@
                 class="border border-gray-300 p-3 w-full rounded-lg"
             >
         </div>
-
         <!-- GÓI -->
         <div class="mb-4">
             <label class="block mb-2 font-medium text-gray-700">
@@ -150,6 +147,7 @@
 
     </form>
 
-</body>
+</div>
 
+</body>
 </html>
