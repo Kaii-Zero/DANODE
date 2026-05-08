@@ -1,248 +1,341 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard - Quản lý dịch vụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .countdown {
+            font-family: monospace;
+            font-weight: 600;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #10b981;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 p-6">
 
 <h1 class="text-2xl font-bold mb-6 text-center">
+    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
     Dashboard dịch vụ của tôi
 </h1>
 
 <!-- STATS -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
     <!-- CỘT TRÁI -->
     <div class="flex flex-col gap-3 max-w-[430px] ml-10">
-
-        <!-- Tổng dịch vụ -->
         <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
             <h2 class="text-gray-500 text-sm">Tổng dịch vụ</h2>
-            <p class="text-2xl font-bold mt-2 text-blue-600">
-                <%= totalServices %>
-            </p>
+            <p class="text-2xl font-bold mt-2 text-blue-600"><%= totalServices %></p>
+            <p class="text-xs text-gray-400 mt-1">(đã gộp các gói trùng tên)</p>
         </div>
 
         <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
-    <h2 class="text-gray-500">Tổng số gói đã mua</h2>
-
-    <p class="text-2xl font-bold mt-2 text-blue-600">
-        <%= totalQuantity %>
-    </p>
-</div>
-
-        <!-- Chi phí tháng -->
-        <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
-            <h2 class="text-gray-500 text-sm">Chi phí tháng</h2>
-
-            <p class="text-2xl font-bold mt-2 text-green-600">
-                $<%= totalCost %>
-            </p>
+            <h2 class="text-gray-500">Tổng số tháng đã mua</h2>
+            <p class="text-2xl font-bold mt-2 text-blue-600"><%= totalQuantity %></p>
+            <p class="text-xs text-gray-400 mt-1">(tổng số tháng của tất cả dịch vụ)</p>
         </div>
 
+        <div class="bg-white p-4 rounded-2xl shadow h-32 flex flex-col justify-center">
+            <h2 class="text-gray-500 text-sm">Tổng chi phí</h2>
+            <p class="text-2xl font-bold mt-2 text-green-600">$<%= totalCost %></p>
+            <p class="text-xs text-gray-400 mt-1">(tổng tiền đã thanh toán)</p>
+        </div>
     </div>
 
     <!-- CỘT PHẢI -->
-    <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow min-h-[280px] max-w-[1200px] mr-10 mb-10">
-
-        <h2 class="text-gray-500 text-lg">Sắp hết hạn</h2>
+    <div class="md:col-span-3 bg-white p-6 rounded-2xl shadow min-h-[280px] max-w-[1200px] mr-10 mb-10">
+        <h2 class="text-gray-500 text-lg">
+            <i class="fas fa-bell text-red-500 mr-2"></i>
+            Sắp hết hạn
+        </h2>
 
         <div class="flex items-center gap-4 mt-4">
-
-            <p class="text-5xl font-bold text-red-500">
-                <%= expiringList.length %>
-            </p>
-
+            <p class="text-5xl font-bold text-red-500"><%= expiringSoon %></p>
             <div>
-                <p class="text-gray-700 font-medium">
-                    dịch vụ sắp hết hạn
-                </p>
-                <p class="text-sm text-gray-400">
-                    Kiểm tra để tránh gián đoạn sử dụng
-                </p>
+                <p class="text-gray-700 font-medium">dịch vụ sắp hết hạn</p>
+                <p class="text-sm text-gray-400">Kiểm tra để tránh gián đoạn sử dụng</p>
             </div>
-
         </div>
 
-        <!-- LIST -->
-        <% if (expiringList.length > 0) { %>
-
+        <% if (expiringList && expiringList.length > 0) { %>
             <div class="mt-6 divide-y">
-
                 <% expiringList.forEach(sub => { %>
-
                     <div class="flex justify-between items-center py-3">
-
                         <div>
-                            <p class="font-semibold text-gray-800">
-                                <%= sub.name %>
-                            </p>
-
-                            <p class="text-sm text-gray-400">
-                                <%= sub.type || 'Service' %>
-                            </p>
+                            <p class="font-semibold text-gray-800"><%= sub.name %></p>
+                            <p class="text-sm text-gray-400"><%= sub.type || 'Service' %> | <%= sub.totalQuantity || sub.quantity %> tháng</p>
                         </div>
-
                         <div class="text-right">
-
-                            <p class="text-sm text-gray-500">
-                                <%= new Date(sub.endDate).toLocaleDateString('vi-VN') %>
-                            </p>
-
-                            <p class="text-xs text-red-400">
-                                còn <%= sub.daysLeft %> ngày
-                            </p>
-
+                            <p class="text-sm text-gray-500">Hạn: <%= new Date(sub.endDate).toLocaleDateString('vi-VN') %></p>
+                            <p class="text-xs text-red-400">còn <%= sub.daysLeft %> ngày</p>
                         </div>
-
                     </div>
-
                 <% }) %>
-
             </div>
-
         <% } else { %>
-
-            <div class="mt-8 text-center text-gray-400">
-                Không có dịch vụ nào sắp hết hạn
-            </div>
-
+            <div class="mt-8 text-center text-gray-400">Không có dịch vụ nào sắp hết hạn</div>
         <% } %>
-
     </div>
-
 </div>
 
 <!-- TABLE -->
-<div class="bg-white p-4 rounded shadow mb-6">
-
-    <h2 class="text-xl font-bold mb-4">Danh sách dịch vụ</h2>
+<div class="bg-white p-4 rounded shadow mb-6 overflow-x-auto">
+    <h2 class="text-xl font-bold mb-4">
+        <i class="fas fa-list-ul text-blue-500 mr-2"></i>
+        Danh sách dịch vụ (đã gộp)
+    </h2>
 
     <table class="w-full text-left border">
-
         <thead class="bg-gray-200">
             <tr>
-                <th class="p-2">Tên</th>
-                <th class="p-2">Giá</th>
+                <th class="p-2">Dịch vụ</th>
+                <th class="p-2">Nhà cung cấp</th>
+                <th class="p-2">Số tháng</th>
+                <th class="p-2">Tổng tiền</th>
                 <th class="p-2">Trạng thái</th>
                 <th class="p-2">Còn lại</th>
-                <th class="p-2">Số lượng</th>
+                <th class="p-2">Tự động gia hạn</th>
+                <th class="p-2">Thao tác</th>
             </tr>
         </thead>
-
         <tbody>
-
         <% subs.forEach(sub => { %>
-
-        <tr class="border-t">
-
-            <td class="p-2"><%= sub.name %></td>
-            <td class="p-2"><%= sub.totalPrice %></td>
-
-            <td class="p-2">
-                <span class="
-                    <%= sub.status === 'Hết hạn' ? 'text-red-500' : '' %>
-                    <%= sub.status === 'Sắp hết' ? 'text-yellow-500' : '' %>
-                    <%= sub.status === 'Còn hạn' ? 'text-green-500' : '' %>
-                ">
-                    <%= sub.status %>
-                </span>
-            </td>
-
-            <!-- ⏳ COUNTDOWN REALTIME -->
-            <td class="p-2">
-                <span class="countdown" data-end="<%= sub.endDate %>">
-                    --
-                </span>
-            </td>
-
-            
-            <td class="p-2">
-                <%= sub.quantity || 1 %>
-            </td>
-
-        </tr>
-
+            <tr class="border-t" id="row-<%= sub.serviceId %>">
+                <td class="p-2">
+                    <div class="flex items-center gap-2">
+                        <img src="<%= sub.logo || '/images/default-logo.svg' %>" 
+                             class="w-8 h-8 rounded-full object-cover" 
+                             onerror="this.onerror=null; this.src='/images/default-logo.svg'">
+                        <span class="font-medium"><%= sub.name %></span>
+                    </div>
+                </td>
+                <td class="p-2"><%= sub.provider || '-' %></td>
+                <td class="p-2 font-semibold text-blue-600"><%= sub.totalQuantity || sub.quantity %> tháng</td>
+                <td class="p-2 font-semibold text-green-600">$<%= sub.totalPrice || sub.price %></td>
+                <td class="p-2">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                        <%= sub.status === 'Hết hạn' ? 'bg-red-100 text-red-700' : '' %>
+                        <%= sub.status === 'Sắp hết' ? 'bg-yellow-100 text-yellow-700' : '' %>
+                        <%= sub.status === 'Còn hạn' ? 'bg-green-100 text-green-700' : '' %>
+                    ">
+                        <%= sub.status %>
+                    </span>
+                </td>
+                <td class="p-2">
+                    <span class="countdown font-mono" data-end="<%= sub.endDate %>">--</span>
+                </td>
+                <td class="p-2">
+                    <label class="toggle-switch">
+                        <input type="checkbox" 
+                               class="auto-renew-toggle" 
+                               data-id="<%= sub._id %>"
+                               <%= sub.autoRenew ? 'checked' : '' %>>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="text-xs ml-1 auto-renew-status" id="status-<%= sub.serviceId %>">
+                        <%= sub.autoRenew ? 'Bật' : 'Tắt' %>
+                    </span>
+                </td>
+                <td class="p-2">
+                    <a href="/subs/create?serviceId=<%= sub.serviceId %>" 
+                       class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm inline-block">
+                        Mua ngay
+                    </a>
+                </td>
+            </tr>
         <% }) %>
-
         </tbody>
-
     </table>
-
 </div>
 
 <!-- CHART -->
 <div class="bg-white p-4 rounded shadow">
-
-    <h2 class="text-xl font-bold mb-4">Biểu đồ chi phí</h2>
-
-    <canvas id="chart"></canvas>
-
+    <h2 class="text-xl font-bold mb-4">
+        <i class="fas fa-chart-bar text-green-500 mr-2"></i>
+        Biểu đồ chi phí theo dịch vụ
+    </h2>
+    <canvas id="chart" style="max-height: 400px;"></canvas>
 </div>
 
 <script>
-const ctx = document.getElementById('chart')
+// Dữ liệu cho biểu đồ
+const subsData = <%- JSON.stringify(subs) %>;
+const labels = subsData.map(s => s.name);
+const prices = subsData.map(s => s.totalPrice || s.price || 0);
+const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb7185', '#38bdf8', '#f97316', '#10b981', '#8b5cf6'];
+const backgroundColors = labels.map((_, i) => colors[i % colors.length]);
 
-new Chart(ctx, {
+// Khởi tạo biểu đồ
+new Chart(document.getElementById('chart'), {
     type: 'bar',
     data: {
-        labels: <%- JSON.stringify(subs.map(s => s.name)) %>,
+        labels: labels,
         datasets: [{
-            label: 'Chi phí',
-            data: <%- JSON.stringify(subs.map(s => s.price)) %>,
-            backgroundColor: <%- JSON.stringify(
-                subs.map(() => {
-                    const colors = [
-                        '#60a5fa',
-                        '#34d399',
-                        '#fbbf24',
-                        '#f472b6',
-                        '#a78bfa',
-                        '#fb7185',
-                        '#38bdf8'
-                    ]
-                    return colors[Math.floor(Math.random() * colors.length)]
-                })
-            ) %>
+            label: 'Tổng chi phí ($)',
+            data: prices,
+            backgroundColor: backgroundColors,
+            borderRadius: 8
         }]
-    }
-})
-
-/* ⏳ REALTIME COUNTDOWN */
-function updateCountdowns() {
-    const elements = document.querySelectorAll('.countdown')
-
-    elements.forEach(el => {
-        const end = new Date(el.dataset.end)
-        const now = new Date()
-
-        const diff = end - now
-
-        if (diff <= 0) {
-            el.innerText = "Hết hạn"
-            el.classList.add("text-red-500")
-            return
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            tooltip: { 
+                callbacks: { 
+                    label: (ctx) => `$${ctx.raw.toFixed(2)}` 
+                } 
+            }
+        },
+        scales: { 
+            y: { 
+                beginAtZero: true, 
+                ticks: { 
+                    callback: (value) => '$' + value 
+                } 
+            } 
         }
+    }
+});
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24)
+// Cập nhật countdown realtime
+function updateCountdowns() {
+    document.querySelectorAll('.countdown').forEach(el => {
+        const end = new Date(el.dataset.end);
+        const diff = end - new Date();
+        if (diff <= 0) {
+            el.innerText = "Hết hạn";
+            el.classList.add("text-red-500");
+            return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        el.innerText = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+    });
+}
+updateCountdowns();
+setInterval(updateCountdowns, 60000);
 
-        el.innerText = `${days}d ${hours}h`
-    })
+// Hiển thị thông báo
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast bg-${type === 'success' ? 'green' : 'red'}-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-updateCountdowns()
-setInterval(updateCountdowns, 60000)
+// Xử lý toggle auto-renew
+document.querySelectorAll('.auto-renew-toggle').forEach(toggle => {
+    toggle.addEventListener('change', async (e) => {
+        const checkbox = e.target;
+        const serviceId = checkbox.dataset.id;
+        const enabled = checkbox.checked;
+        const statusSpan = document.getElementById(`status-${serviceId}`);
+        
+        // Hiển thị trạng thái loading
+        const originalText = statusSpan.innerText;
+        statusSpan.innerText = 'Đang xử lý...';
+        statusSpan.style.color = 'orange';
+        
+        try {
+            const response = await fetch(`/subs/auto-renew/${serviceId}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: enabled })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                statusSpan.innerText = enabled ? 'Bật' : 'Tắt';
+                statusSpan.style.color = enabled ? 'green' : 'gray';
+                showToast(result.message, 'success');
+            } else {
+                // Khôi phục trạng thái cũ nếu thất bại
+                checkbox.checked = !enabled;
+                statusSpan.innerText = originalText;
+                statusSpan.style.color = '';
+                showToast(result.error || 'Có lỗi xảy ra', 'error');
+            }
+        } catch (error) {
+            console.error('Toggle auto-renew error:', error);
+            checkbox.checked = !enabled;
+            statusSpan.innerText = originalText;
+            statusSpan.style.color = '';
+            showToast('Lỗi kết nối đến server', 'error');
+        }
+    });
+});
+
+// Xác nhận xóa dịch vụ (nếu có)
+function confirmDelete(serviceName) {
+    return confirm(`Bạn có chắc chắn muốn xóa dịch vụ "${serviceName}"?`);
+}
 </script>
 
-
 </body>
-<style>
-    #myChart {
-        max-height: 200px;
-    }
-</style>
 </html>

@@ -1,94 +1,93 @@
-const router = require('express').Router()
-
+const express = require('express')
+const router = express.Router()
 const Service = require('../models/service.model')
 
-const auth = require('../helpers/auth')
-const admin = require('../helpers/admin')
-
-router.use(auth)
-
-
-// LIST
+// Danh sách dịch vụ (TRANG CHÍNH CỦA DV)
 router.get('/', async (req, res) => {
-
-    const services = await Service.find()
-
-    res.render('dv/dv', {
-        services,
-        user: req.user
-    })
+    try {
+        const services = await Service.find()
+        // SỬA: render file trong thư mục dv, không phải subs
+        res.render('dv/list', { services })  // ← Đổi thành dv/list
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi lấy danh sách')
+    }
 })
 
-
-// CREATE FORM
-router.get('/create', admin, (req, res) => {
-
-    res.render('dv/create')
-
+// Form thêm dịch vụ
+router.get('/create', (req, res) => {
+    res.render('dv/create')  // ← Giữ nguyên
 })
 
-
-// CREATE HANDLE
-router.post('/create', admin, async (req, res) => {
-
-    await Service.create({
-        name: req.body.name,
-        price: req.body.price,
-        type: req.body.type,
-        discount: req.body.discount,
-        package: req.body.package,
-        provider: req.body.provider,
-        logo: req.body.logo,
-        description: req.body.description
-    })
-
-    res.redirect('/dv')
-
+// Xử lý thêm dịch vụ
+router.post('/create', async (req, res) => {
+    try {
+        const { name, price, type, packageType, provider, logo, discount, description } = req.body
+        
+        const service = new Service({
+            name,
+            price: Number(price),
+            discount: Number(discount) || 0,
+            type: type || '',
+            packageType: packageType || 'Cơ bản',
+            provider: provider || '',
+            logo: logo || '',
+            description: description || ''
+        })
+        
+        await service.save()
+        res.redirect('/dv')  // ← Quay lại trang danh sách dv
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi tạo dịch vụ: ' + error.message)
+    }
 })
 
-
-// EDIT FORM
-router.get('/edit/:id', admin, async (req, res) => {
-
-    const service = await Service.findById(req.params.id)
-
-    res.render('dv/edit', { service })
-
+// Sửa dịch vụ
+router.get('/edit/:id', async (req, res) => {
+    try {
+        const service = await Service.findById(req.params.id)
+        if (!service) {
+            return res.status(404).send('Không tìm thấy dịch vụ')
+        }
+        res.render('dv/edit', { service })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi lấy thông tin dịch vụ')
+    }
 })
 
-
-// UPDATE
 router.post('/edit/:id', async (req, res) => {
-
-    await Service.findByIdAndUpdate(
-        req.params.id,
-        req.body
-    )
-
-    res.redirect('/dv')
-
+    try {
+        const { name, price, type, packageType, provider, logo, discount, description } = req.body
+        
+        await Service.findByIdAndUpdate(req.params.id, {
+            name,
+            price: Number(price),
+            discount: Number(discount) || 0,
+            type: type || '',
+            packageType: packageType || 'Cơ bản',
+            provider: provider || '',
+            logo: logo || '',
+            description: description || ''
+        })
+        
+        res.redirect('/dv')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi cập nhật dịch vụ')
+    }
 })
 
-
-// DELETE
-router.get('/delete/:id', admin, async (req, res) => {
-
-    await Service.findByIdAndDelete(req.params.id)
-
-    res.redirect('/dv')
-
+// Xóa dịch vụ
+router.post('/delete/:id', async (req, res) => {
+    try {
+        await Service.findByIdAndDelete(req.params.id)
+        res.redirect('/dv')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi xóa dịch vụ')
+    }
 })
-
-// PAYMENT
-router.get('/payment/:id', async (req, res) => {
-
-    const sub = await Subscription.findById(req.params.id)
-
-    res.render('subs/payment', {
-        sub
-    })
-
-})
-
 
 module.exports = router

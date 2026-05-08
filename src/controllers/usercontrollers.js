@@ -1,98 +1,114 @@
 const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
-const { generateToken } = require('../helpers/jwt')
-const { registerSchema, loginSchema } = require('../helpers/joi_helpers')
-
+// Đăng ký
 exports.register = async (req, res) => {
     try {
-
-        // Validate
-        const { error } = registerSchema.validate(req.body)
-
-        if (error) {
-            return res.send(error.message)
+        console.log('Register body:', req.body) // Debug
+        
+        const { email, password, name } = req.body
+        
+        if (!email || !password) {
+            return res.render('auth/register', { error: 'Vui lòng nhập đầy đủ thông tin' })
         }
-
-        const { username, email, password } = req.body
-
-        // Check user tồn tại
-        const exist = await User.findOne({
-            $or: [
-                { username },
-                { email }
-            ]
-        })
-
-        if (exist) {
-            return res.send('User hoặc Email đã tồn tại')
+        
+        // Kiểm tra user đã tồn tại
+        const existingUser = await User.findOne({ email })
+        if (existingUser) {
+            return res.render('auth/register', { error: 'Email đã tồn tại' })
         }
-
+        
         // Hash password
-        const hash = await bcrypt.hash(password, 10)
-
-        // Create user
-        await User.create({
-            username,
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        
+        // Tạo user mới
+        const user = new User({
             email,
-            password: hash
+            password: hashedPassword,
+            name: name || email.split('@')[0]
         })
-
-        res.redirect('/login')
-
-    } catch (err) {
-        res.send(err.message)
+        
+        await user.save()
+        console.log('User created:', user._id)
+        
+        // Lưu session
+        req.session.userId = user._id.toString()
+        req.session.user = {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name
+        }
+        
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session error:', err)
+                return res.render('auth/register', { error: 'Đăng ký thất bại' })
+            }
+            console.log('Session saved, redirecting to /subs')
+            res.redirect('/subs')
+        })
+        
+    } catch (error) {
+        console.error('Register error:', error)
+        res.render('auth/register', { error: 'Đăng ký thất bại: ' + error.message })
     }
 }
 
+// Đăng nhập
 exports.login = async (req, res) => {
     try {
-
-        // Validate
-        const { error } = loginSchema.validate(req.body)
-
-        if (error) {
-            return res.send(error.message)
+        console.log('Login body:', req.body) // Debug
+        
+        const { email, password } = req.body
+        
+        if (!email || !password) {
+            return res.render('auth/login', { error: 'Vui lòng nhập email và mật khẩu' })
         }
-
-        const { username, password } = req.body
-
-        // Find user
-        const user = await User.findOne({ username })
-
+        
+        // Tìm user
+        const user = await User.findOne({ email })
         if (!user) {
-            return res.send('Sai username')
+            return res.render('auth/login', { error: 'Email hoặc mật khẩu không đúng' })
         }
-
-        // Compare password
-        const match = await bcrypt.compare(
-            password,
-            user.password
-        )
-
-        if (!match) {
-            return res.send('Sai password')
+        
+        // So sánh password
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) {
+            return res.render('auth/login', { error: 'Email hoặc mật khẩu không đúng' })
         }
-
-        // Generate token
-        const token = generateToken({
-            id: user._id
+        
+        console.log('Login success:', user._id)
+        
+        // Lưu session
+        req.session.userId = user._id.toString()
+        req.session.user = {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name
+        }
+        
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session error:', err)
+                return res.render('auth/login', { error: 'Đăng nhập thất bại' })
+            }
+            console.log('Session saved, userId:', req.session.userId)
+            res.redirect('/subs')
         })
-
-        // Save cookie
-        res.cookie('token', token, {
-        httpOnly: true,
-        secure: false
-    })
-
-        return res.redirect('/all')
-
-    } catch (err) {
-        res.send(err.message)
+        
+    } catch (error) {
+        console.error('Login error:', error)
+        res.render('auth/login', { error: 'Đăng nhập thất bại' })
     }
 }
 
+// Đăng xuất
 exports.logout = (req, res) => {
-    res.clearCookie('token')
-    res.redirect('/login')
+    req.session.destroy((err) => {
+        if (err) {
+            console.error(err)
+        }
+        res.redirect('/login')
+    })
 }

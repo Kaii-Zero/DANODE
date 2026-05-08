@@ -3,104 +3,67 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Sửa dịch vụ</title>
 </head>
 
-<body class="flex items-center justify-center min-h-screen bg-gray-100">
+<body class="bg-gray-100">
 
-    <form
-        action="/dv/edit/<%= service._id %>"
-        method="POST"
-        class="bg-white p-8 rounded-2xl shadow-xl w-[500px]"
-    >
+<div class="min-h-screen flex items-center justify-center px-4">
+    <form action="/dv/edit/<%= service._id %>" method="POST" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-[450px]">
+        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Sửa dịch vụ</h2>
 
-        <h1 class="text-3xl font-bold text-center mb-6">
-            Sửa dịch vụ
-        </h1>
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Tên dịch vụ</label>
+            <input type="text" name="name" value="<%= service.name %>" class="border border-gray-300 p-3 w-full rounded-lg" required>
+        </div>
 
-        <!-- NAME -->
-        <input
-            type="text"
-            name="name"
-            value="<%= service.name %>"
-            placeholder="Tên dịch vụ"
-            class="border p-3 w-full mb-4 rounded"
-            required
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Giá</label>
+            <input type="number" name="price" value="<%= service.price %>" class="border border-gray-300 p-3 w-full rounded-lg" required>
+        </div>
 
-        <!-- PRICE -->
-        <input
-            type="number"
-            name="price"
-            value="<%= service.price %>"
-            placeholder="Giá"
-            class="border p-3 w-full mb-4 rounded"
-            required
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Loại</label>
+            <input type="text" name="type" value="<%= service.type || '' %>" class="border border-gray-300 p-3 w-full rounded-lg">
+        </div>
 
-        <!-- TYPE -->
-        <input
-            type="text"
-            name="type"
-            value="<%= service.type %>"
-            placeholder="Loại"
-            class="border p-3 w-full mb-4 rounded"
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Khuyến mãi (%)</label>
+            <input type="number" name="discount" value="<%= service.discount || 0 %>" class="border border-gray-300 p-3 w-full rounded-lg">
+        </div>
 
-        <!-- DISCOUNT -->
-        <input
-            type="number"
-            name="discount"
-            value="<%= service.discount %>"
-            placeholder="Khuyến mãi (%)"
-            class="border p-3 w-full mb-4 rounded"
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Gói</label>
+            <input type="text" name="packageType" value="<%= service.packageType || '' %>" class="border border-gray-300 p-3 w-full rounded-lg">
+        </div>
 
-        <!-- PACKAGE -->
-        <input
-            type="text"
-            name="package"
-            value="<%= service.package %>"
-            placeholder="Gói"
-            class="border p-3 w-full mb-4 rounded"
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Nhà cung cấp</label>
+            <input type="text" name="provider" value="<%= service.provider || '' %>" class="border border-gray-300 p-3 w-full rounded-lg">
+        </div>
 
-        <!-- PROVIDER -->
-        <input
-            type="text"
-            name="provider"
-            value="<%= service.provider %>"
-            placeholder="Nhà cung cấp"
-            class="border p-3 w-full mb-4 rounded"
-        >
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">Logo URL</label>
+            <input type="text" name="logo" value="<%= service.logo || '' %>" class="border border-gray-300 p-3 w-full rounded-lg">
+        </div>
 
-        <!-- LOGO -->
-        <input
-            type="text"
-            name="logo"
-            value="<%= service.logo %>"
-            placeholder="Logo URL"
-            class="border p-3 w-full mb-4 rounded"
-        >
+        <div class="mb-5">
+            <label class="block mb-2 font-medium text-gray-700">Mô tả</label>
+            <textarea name="description" rows="4" class="border border-gray-300 p-3 w-full rounded-lg"><%= service.description || '' %></textarea>
+        </div>
 
-        <!-- DESCRIPTION -->
-        <textarea
-            name="description"
-            class="border p-3 w-full mb-5 rounded"
-            placeholder="Mô tả"
-        ><%= service.description %></textarea>
-
-        <!-- BUTTON -->
-        <button
-            type="submit"
-            class="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded font-semibold"
-        >
-            Cập nhật
-        </button>
-
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white w-full p-3 rounded-lg font-semibold transition">
+                Cập nhật
+            </button>
+            <a href="/dv" class="bg-gray-500 hover:bg-gray-600 text-white w-full p-3 rounded-lg font-semibold text-center transition">
+                Hủy
+            </a>
+        </div>
     </form>
+</div>
 
 </body>
-
 </html>

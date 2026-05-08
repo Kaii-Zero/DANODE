@@ -3,86 +3,103 @@
 <head>
     <title>Đăng ký dịch vụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .service-logo {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-card:hover .service-logo {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-<!-- HEADER -->
 <div class="text-center py-8">
-    <h1 class="text-3xl font-bold text-gray-800">
-        Chọn dịch vụ đăng ký
-    </h1>
-    <p class="text-gray-500 mt-2">
-        Chọn gói phù hợp và số lượng bạn muốn
-    </p>
+    <h1 class="text-3xl font-bold text-gray-800">Chọn dịch vụ đăng ký</h1>
+    <p class="text-gray-500 mt-2">Chọn gói phù hợp với nhu cầu của bạn</p>
 </div>
 
-<!-- GRID -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
 
     <% services.forEach(service => { %>
+    
+        <% 
+            // CÁCH TÍNH ĐÚNG: price là giá gốc
+            let originalPrice = service.price || 0;        // 30
+            let discountPercent = service.discount || 0;   // 10
+            let finalPrice = originalPrice;                // 30
+            
+            // Nếu có giảm giá, tính giá sau giảm
+            if (discountPercent > 0) {
+                finalPrice = originalPrice * (100 - discountPercent) / 100;  // 30 * 90/100 = 27
+            }
+            
+            // Xử lý logo
+            let logoDisplay = '/images/default-logo.svg';
+            if (service.logo && service.logo !== '') {
+                if (service.logo.startsWith('http')) {
+                    logoDisplay = service.logo;
+                } else {
+                    logoDisplay = service.logo.startsWith('/') ? service.logo : '/' + service.logo;
+                }
+            }
+        %>
 
-        <!-- CARD -->
-        <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition p-4 flex flex-col">
-
-            <!-- IMAGE -->
-            <img src="<%= service.logo %>"
-                 class="w-full h-40 object-cover rounded-lg">
-
-            <!-- NAME -->
-            <h2 class="text-xl font-bold mt-3 text-gray-800">
-                <%= service.name %>
-            </h2>
-
-            <!-- PRICE -->
-            <p class="text-green-600 font-bold text-lg mt-1">
-                $<%= service.price %>
-            </p>
-
-            <!-- INFO -->
-            <div class="text-sm text-gray-500 mt-2 space-y-1">
-                <p>Loại: <%= service.type %></p>
-                <p>Giảm: <%= service.discount || 0 %>%</p>
-                <p>Nhà cung cấp: <%= service.provider %></p>
+        <div class="service-card bg-white rounded-xl shadow-md hover:shadow-xl transition p-4 flex flex-col">
+            <div class="relative w-full overflow-hidden rounded-xl bg-gray-100">
+                <img src="<%= logoDisplay %>"
+                     class="service-logo"
+                     alt="<%= service.name %>"
+                     onerror="this.onerror=null; this.src='/images/default-logo.svg'">
             </div>
-
-            <!-- FORM -->
-            <form action="/subs/create"
-                  method="POST"
-                  class="mt-4 space-y-3">
-
-                <!-- SERVICE ID -->
-                <input type="hidden"
-                       name="serviceId"
-                       value="<%= service._id %>">
-
-                <!-- QUANTITY -->
-                <div>
-                    <label class="block text-gray-700 font-semibold mb-1">
-                        Số lượng gói
-                    </label>
-
-                    <select name="quantity"
-                            class="border w-full p-2 rounded-lg focus:ring-2 focus:ring-blue-400">
-
-                        <option value="1">1 gói</option>
-                        <option value="2">2 gói</option>
-                        <option value="3">3 gói</option>
-                        <option value="6">6 gói</option>
-
-                    </select>
-                </div>
-
-                <!-- BUTTON -->
-                <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white w-full p-2 rounded-lg font-semibold transition">
-
-                    Đăng ký ngay
-
+            
+            <h2 class="text-xl font-bold mt-4 text-gray-800"><%= service.name %></h2>
+            
+            <!-- PRICE - ĐÃ SỬA ĐÚNG -->
+            <div class="flex items-center gap-2 mt-3">
+                <!-- Giá sau giảm (27) - TO, ĐỎ -->
+                <p class="text-red-600 font-bold text-2xl">
+                    $<%= finalPrice.toFixed(2) %>
+                </p>
+                
+                <!-- Giá gốc (30) - GẠCH NGANG -->
+                <% if(discountPercent > 0 && finalPrice < originalPrice) { %>
+                    <p class="text-gray-400 line-through text-sm">
+                        $<%= originalPrice.toFixed(2) %>
+                    </p>
+                    <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-semibold">
+                        -<%= discountPercent %>%
+                    </span>
+                <% } %>
+            </div>
+            
+            <div class="text-sm text-gray-500 mt-3 space-y-1">
+                <p><span class="font-semibold">Loại:</span> <%= service.type || 'Cơ bản' %></p>
+                <p><span class="font-semibold">Nhà cung cấp:</span> <%= service.provider || 'Khác' %></p>
+                <p><span class="font-semibold">Thời hạn:</span> 30 ngày</p>
+            </div>
+            
+            <form action="/subs/create" method="POST" class="mt-4">
+                <input type="hidden" name="serviceId" value="<%= service._id %>">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white w-full p-3 rounded-lg font-semibold transition">
+                    🚀 Đăng ký ngay
                 </button>
-
             </form>
-
         </div>
 
     <% }) %>

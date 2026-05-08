@@ -1,63 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>Đăng nhập</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <title>Login</title>
 </head>
-
-<body class="flex items-center justify-center h-screen bg-gray-100">
-
-    <form
-        action="/login"
-        method="POST"
-        class="bg-white p-6 rounded shadow w-96"
-    >
-
-        <h2 class="text-2xl font-bold mb-5 text-center">
-            Login
-        </h2>
-
-        <!-- Username -->
-        <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            class="border p-2 w-full mb-3 rounded"
-        >
-
-        <!-- Password -->
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            class="border p-2 w-full mb-4 rounded"
-        >
-
-        <!-- Button -->
-        <button
-            type="submit"
-            class="bg-blue-500 hover:bg-blue-600 text-white w-full p-2 rounded"
-        >
-            Login
-        </button>
-
-        <p class="text-center text-sm mt-4">
-            Don't have an account?
-
-            <a
-                href="/register"
-                class="text-blue-500 hover:underline"
-            >
-                Register
-            </a>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h1 class="text-2xl font-bold mb-6 text-center">Đăng nhập</h1>
+        
+        <% if (typeof error !== 'undefined' && error && error !== 'null') { %>
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <!-- QUAN TRỌNG: Thêm method POST và action đúng -->
+        <form action="/login" method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Email</label>
+                <input type="email" 
+                       name="email" 
+                       id="email"
+                       class="w-full p-2 border rounded focus:outline-none focus:border-blue-500" 
+                       placeholder="example@email.com"
+                       required>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Mật khẩu</label>
+                <input type="password" 
+                       name="password" 
+                       id="password"
+                       class="w-full p-2 border rounded focus:outline-none focus:border-blue-500" 
+                       placeholder="••••••"
+                       required>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded font-semibold transition">
+                Đăng nhập
+            </button>
+        </form>
+        
+        <p class="mt-4 text-center text-gray-600">
+            Chưa có tài khoản? <a href="/register" class="text-blue-500 hover:underline">Đăng ký</a>
         </p>
-
-    </form>
-
+    </div>
 </body>
 </html>

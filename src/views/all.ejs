@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubHub - Quản lý dịch vụ số của bạn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .service-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .progress-ring {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+
+<!-- Sidebar Navigation -->
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-72 gradient-bg text-white flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-white/20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-crown text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">SubHub</h1>
+                    <p class="text-xs text-white/70">Quản lý dịch vụ số</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-xl transition-all">
+                <i class="fas fa-chart-pie w-5"></i>
+                <span>Tổng quan</span>
+            </a>
+            <a href="/subs" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                <i class="fas fa-layer-group w-5"></i>
+                <span>Dịch vụ của tôi</span>
+            </a>
+            <a href="/subs/create" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                <i class="fas fa-plus-circle w-5"></i>
+                <span>Thêm dịch vụ</span>
+            </a>
+            <a href="/dv" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                <i class="fas fa-store w-5"></i>
+                <span>Cửa hàng</span>
+            </a>
+            <a href="/notifications" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                <i class="fas fa-bell w-5"></i>
+                <span>Thông báo</span>
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-white/20">
+            <div class="flex items-center gap-3">
+                <img src="<%= user?.avatar || '/images/default-avatar.png' %>" 
+                     class="w-10 h-10 rounded-full border-2 border-white"
+                     onerror="this.src='/images/default-avatar.png'">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold"><%= user?.name || 'Người dùng' %></p>
+                    <p class="text-xs text-white/70"><%= user?.email || 'user@example.com' %></p>
+                </div>
+                <a href="/logout" class="text-white/70 hover:text-white transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto">
+        <!-- Header -->
+        <div class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="px-8 py-4 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Chào mừng trở lại! 👋</h2>
+                    <p class="text-gray-500 text-sm mt-1">Đây là tổng quan về các dịch vụ của bạn</p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="p-2 hover:bg-gray-100 rounded-xl transition relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <% if(expiringCount > 0) { %>
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        <% } %>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-8">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="glass-card rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-cubes text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-gray-800"><%= services.length %></span>
+                    </div>
+                    <p class="text-gray-600 font-medium">Dịch vụ đang dùng</p>
+                    <p class="text-sm text-gray-400 mt-1">Tổng số gói đã đăng ký</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-gray-800">$<%= totalCost %></span>
+                    </div>
+                    <p class="text-gray-600 font-medium">Tổng chi phí</p>
+                    <p class="text-sm text-gray-400 mt-1">Mỗi tháng</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-gray-800"><%= expiringCount %></span>
+                    </div>
+                    <p class="text-gray-600 font-medium">Sắp hết hạn</p>
+                    <p class="text-sm text-gray-400 mt-1">Còn ít hơn 7 ngày</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-gray-800">¥</span>
+                    </div>
+                    <p class="text-gray-600 font-medium">Tiết kiệm</p>
+                    <p class="text-sm text-gray-400 mt-1">So với giá gốc</p>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="gradient-bg rounded-2xl p-8 text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <i class="fas fa-rocket text-4xl mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Thêm dịch vụ mới</h3>
+                        <p class="text-white/80 mb-4">Mở rộng hệ sinh thái số của bạn</p>
+                        <a href="/subs/create" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-6 py-2 rounded-xl hover:bg-white/30 transition">
+                            <span>Khám phá ngay</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="absolute right-0 bottom-0 opacity-10">
+                        <i class="fas fa-rocket text-9xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-8 text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <i class="fas fa-gift text-4xl mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Ưu đãi đặc biệt</h3>
+                        <p class="text-white/80 mb-4">Nhận ngay 20% khi mua gói 12 tháng</p>
+                        <a href="/dv" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-6 py-2 rounded-xl hover:bg-white/30 transition">
+                            <span>Xem ưu đãi</span>
+                            <i class="fas fa-tag"></i>
+                        </a>
+                    </div>
+                    <div class="absolute right-0 bottom-0 opacity-10">
+                        <i class="fas fa-gift text-9xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Expiring Soon Section -->
+            <% if (expiringList.length > 0) { %>
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        Cần chú ý
+                    </h3>
+                    <span class="text-sm text-gray-500"><%= expiringList.length %> dịch vụ sắp hết hạn</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <% expiringList.forEach(service => { %>
+                        <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-yellow-500">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <img src="<%= service.logo || '/images/default-logo.svg' %>" 
+                                         class="w-10 h-10 rounded-lg object-cover"
+                                         onerror="this.src='/images/default-logo.svg'">
+                                    <div>
+                                        <p class="font-semibold text-gray-800"><%= service.name %></p>
+                                        <p class="text-xs text-gray-500"><%= service.provider || 'Nhà cung cấp' %></p>
+                                    </div>
+                                </div>
+                                <span class="text-red-600 font-bold text-sm">Còn <%= service.daysLeft %> ngày</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: <%= Math.max(0, (7 - service.daysLeft) / 7 * 100) %>%"></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="/subs/payment/<%= service._id %>" 
+                                   class="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm transition">
+                                    Gia hạn ngay
+                                </a>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+            
+            <!-- Chart Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                        Biểu đồ chi phí
+                    </h3>
+                    <canvas id="costChart" height="200"></canvas>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-tag text-purple-500 mr-2"></i>
+                        Dịch vụ phổ biến
+                    </h3>
+                    <div class="space-y-3">
+                        <% services.slice(0, 5).forEach(service => { %>
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-tv text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800"><%= service.name %></p>
+                                        <p class="text-xs text-gray-500">$<%= service.price %>/tháng</p>
+                                    </div>
+                                </div>
+                                <a href="/subs/payment/<%= service._id %>" class="text-blue-500 hover:text-blue-600">
+                                    <i class="fas fa-sync-alt"></i>
+                                </a>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Services Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-th-large text-green-500 mr-2"></i>
+                        Tất cả dịch vụ
+                    </h3>
+                    <a href="/subs" class="text-blue-500 hover:text-blue-600 text-sm">Xem tất cả →</a>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <% services.slice(0, 8).forEach(service => { %>
+                        <div class="service-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl">
+                            <div class="relative h-32 overflow-hidden">
+                                <img src="<%= service.logo || '/images/default-logo.svg' %>" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.src='/images/default-logo.svg'">
+                                <div class="absolute top-2 right-2">
+                                    <span class="bg-<%= service.status === 'Còn hạn' ? 'green' : service.status === 'Sắp hết' ? 'yellow' : 'red' %>-500 text-white text-xs px-2 py-1 rounded-full">
+                                        <%= service.status === 'Còn hạn' ? 'Hoạt động' : service.status === 'Sắp hết' ? 'Sắp hết' : 'Hết hạn' %>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-bold text-gray-800 mb-1"><%= service.name %></h4>
+                                <p class="text-gray-500 text-sm mb-2"><%= service.provider || 'Nhà cung cấp' %></p>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-2xl font-bold text-green-600">$<%= service.price %></span>
+                                    <span class="text-xs text-gray-400">/tháng</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <a href="/subs/payment/<%= service._id %>" 
+                                       class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition">
+                                        Chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart.js Configuration
+    const ctx = document.getElementById('costChart').getContext('2d');
+    const services = <%- JSON.stringify(services) %>;
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: services.map(s => s.name),
+            datasets: [{
+                label: 'Chi phí hàng tháng ($)',
+                data: services.map(s => s.price || 0),
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: '#764ba2',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `$${context.raw.toFixed(2)} / tháng`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    },
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

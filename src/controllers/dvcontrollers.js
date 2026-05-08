@@ -1,37 +1,50 @@
-const Book = require('../models/user.model')
-
 const Service = require('../models/service.model')
 
-exports.list = async (req, res) => {
-
-    const services = await Service.find()
-
-    res.render('dv/dv', {
-        services
-    })
+// Hiển thị form thêm dịch vụ
+exports.showCreateForm = (req, res) => {
+    res.render('services/create')
 }
 
-exports.getAll = async (req, res) => {
+// Xử lý thêm dịch vụ
+exports.createService = async (req, res) => {
     try {
-        const books = await Book.find()
-        res.render('books/all', { books })
-    } catch (err) {
-        res.send(err.message)
+        const { 
+            name, 
+            price, 
+            type, 
+            packageType,   // ← LẤY DỮ LIỆU TỪ FORM
+            provider, 
+            logo, 
+            discount, 
+            description 
+        } = req.body
+        
+        const service = new Service({
+            name,
+            price: Number(price),
+            discount: Number(discount) || 0,
+            type: type || '',
+            packageType: packageType || 'Cơ bản',  // ← LƯU VÀO DB
+            provider: provider || '',
+            logo: logo || '',
+            description: description || ''
+        })
+        
+        await service.save()
+        res.redirect('/dv')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi tạo dịch vụ: ' + error.message)
     }
 }
 
-exports.addPage = (req, res) => {
-    res.render('books/add-book')
-}
-
-exports.create = async (req, res) => {
+// Danh sách dịch vụ
+exports.listServices = async (req, res) => {
     try {
-        const { name } = req.body
-
-        await Book.create({ name })
-
-        res.redirect('/dv')
-    } catch (err) {
-        res.send(err.message)
+        const services = await Service.find()
+        res.render('services/list', { services })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Lỗi lấy danh sách')
     }
 }

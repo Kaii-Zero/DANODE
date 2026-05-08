@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cài đặt tự động gia hạn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">⚙️ Cài đặt tự động gia hạn</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Hướng dẫn</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-600">
+                <li>Khi bật tự động gia hạn, hệ thống sẽ tự động gia hạn dịch vụ trước khi hết hạn 1 ngày</li>
+                <li>Phí gia hạn sẽ được tính dựa trên giá hiện tại của dịch vụ</li>
+                <li>Bạn có thể tắt bất cứ lúc nào trong phần quản lý dịch vụ</li>
+                <li>Hệ thống sẽ gửi thông báo trước khi gia hạn 7 ngày và 1 ngày</li>
+            </ul>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">📋 Dịch vụ đang bật tự động gia hạn</h2>
+            <div id="auto-renew-list" class="space-y-2">
+                <!-- Danh sách sẽ được load bằng AJAX -->
+                <p class="text-gray-400">Đang tải...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        fetch('/subs/auto-renew/list')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('auto-renew-list')
+                if (data.subscriptions && data.subscriptions.length > 0) {
+                    container.innerHTML = data.subscriptions.map(sub => `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold">${sub.name}</p>
+                                <p class="text-sm text-gray-500">Hết hạn: ${new Date(sub.endDate).toLocaleDateString('vi-VN')}</p>
+                            </div>
+                            <span class="text-green-600 text-sm">✓ Đã bật</span>
+                        </div>
+                    `).join('')
+                } else {
+                    container.innerHTML = '<p class="text-gray-400">Chưa có dịch vụ nào bật tự động gia hạn</p>'
+                }
+            })
+    </script>
+</body>
+</html>

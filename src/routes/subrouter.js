@@ -1,38 +1,47 @@
-const router = require('express').Router()
-
+const express = require('express')
+const router = express.Router()
 const subController = require('../controllers/subcontrollers')
-const auth = require('../helpers/auth')
-const Subscription = require('../models/subscription.model')
-router.use(auth)
+const { ensureAuth } = require('../middlewares/auth')
+const Subscription = require('../models/subscription.model')  // ← THÊM DÒNG NÀY
 
-// CREATE
+// Áp dụng middleware authentication cho TẤT CẢ các route trong subrouter
+router.use(ensureAuth)
+
+// Dashboard
+router.get('/', subController.list)
+
+// Tạo mới
 router.get('/create', subController.addPage)
 router.post('/create', subController.create)
 
-// PAYMENT FLOW
+// Payment page
+router.get('/payment/:subId', subController.showPayment)
+
+// Xác nhận thanh toán
 router.post('/confirm', subController.confirm)
 
-// DASHBOARD
-router.get('/', subController.list)
-
-// EXTEND
+// Gia hạn
 router.post('/extend/:id', subController.extend)
 
-// DELETE
-router.get('/delete/:id', subController.delete)
+// Xóa
+router.post('/delete/:id', subController.delete)
 
-// PAY
-router.get('/payment/:id', async (req, res) => {
+// Bật/tắt tự động gia hạn
+router.post('/auto-renew/:id/toggle', subController.toggleAutoRenew)
+router.get('/auto-renew/list', subController.getAutoRenewList)
 
-    const sub = await Subscription.findById(req.params.id)
-        .populate('serviceId')
-
-    if (!sub) return res.send("Not found")
-
-    return res.render('subs/payment', {
-        sub,
-        service: sub.serviceId   // 👈 BẮT BUỘC
-    })
+// Debug route - kiểm tra subscription (TẠM THỜI, SAU ĐÓ XÓA)
+router.get('/debug/subscriptions', ensureAuth, async (req, res) => {
+    try {
+        const subs = await Subscription.find({ userId: req.user.id })
+        res.json(subs.map(s => ({ 
+            _id: s._id, 
+            name: s.name, 
+            autoRenew: s.autoRenew || false 
+        })))
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
 })
 
 module.exports = router

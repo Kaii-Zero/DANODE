@@ -1,55 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Checkout</title>
+    <title>Thanh toán đơn hàng</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .service-logo {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .payment-card {
+            transition: all 0.3s ease;
+        }
+        
+        .payment-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .payment-card:hover .service-logo {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-<div class="bg-white w-[440px] p-6 rounded-2xl shadow-xl">
+<div class="payment-card bg-white w-[440px] p-6 rounded-2xl shadow-xl">
 
     <h1 class="text-xl font-bold text-center mb-4">
         🛒 Thanh toán đơn hàng
     </h1>
 
-    <img src="<%= sub.logo %>"
-         class="w-full h-40 object-cover rounded-lg mb-4">
+    <!-- LOGO - ÁP DỤNG BỐ CỤC GIỐNG CREATE.EJS -->
+    <div class="relative w-full overflow-hidden rounded-xl bg-gray-100 mb-4">
+        <img src="<%= service.logo || '/images/default-logo.svg' %>"
+             class="service-logo"
+             alt="<%= service.name %>"
+             onerror="this.onerror=null; this.src='/images/default-logo.svg'">
+    </div>
 
     <!-- INFO -->
     <div class="space-y-3 text-gray-700">
 
-        <p><b>Dịch vụ:</b> <%= sub.name %></p>
+        <p class="flex items-center gap-2">
+            <span class="font-semibold">Dịch vụ:</span> 
+            <span><%= service.name %></span>
+        </p>
+
+        <!-- PRICE PER UNIT -->
+        <p class="flex items-center gap-2">
+            <span class="font-semibold">Đơn giá:</span> 
+            <span class="text-red-600 font-bold">$<span id="unitPriceDisplay">0.00</span></span>
+        </p>
 
         <!-- QUANTITY -->
         <div class="flex items-center justify-between">
-
-            <b>Số lượng:</b>
-
+            <span class="font-semibold">Số lượng (tháng):</span>
             <div class="flex items-center border rounded-lg overflow-hidden">
-
-                <button type="button" onclick="changeQty(-1)" class="px-3 bg-gray-100">-</button>
-
+                <button type="button" onclick="changeQty(-1)" class="px-3 bg-gray-100 hover:bg-gray-200 transition">-</button>
                 <input id="qty"
                        type="number"
                        min="1"
-                       value="1"
+                       value="<%= currentQuantity || 1 %>"
                        class="w-16 text-center outline-none"
                        oninput="updateUI()">
-
-                <button type="button" onclick="changeQty(1)" class="px-3 bg-gray-100">+</button>
-
+                <button type="button" onclick="changeQty(1)" class="px-3 bg-gray-100 hover:bg-gray-200 transition">+</button>
             </div>
         </div>
 
         <!-- VOUCHER -->
         <div>
-            <label class="text-sm font-semibold">Voucher</label>
-
+            <label class="text-sm font-semibold">Voucher (Giảm giá)</label>
             <input id="voucher"
                    type="number"
+                   min="0"
+                   value="0"
+                   step="1000"
                    placeholder="Nhập số tiền giảm"
-                   class="border w-full p-2 rounded mt-1"
+                   class="border w-full p-2 rounded mt-1 focus:outline-none focus:border-blue-500"
                    oninput="updateUI()">
         </div>
 
@@ -60,17 +91,24 @@
 
         <div class="flex justify-between">
             <span>Giá gốc:</span>
-            <span id="basePrice">0</span>
+            <span>$<span id="basePrice">0.00</span></span>
         </div>
 
         <div class="flex justify-between text-gray-500">
-            <span>Giảm giá:</span>
-            <span>- $<span id="discountMoney">0</span></span>
+            <span>Giảm giá (<span id="discountPercent">0</span>%):</span>
+            <span>- $<span id="discountMoney">0.00</span></span>
         </div>
 
         <div class="flex justify-between text-green-600">
-            <span>Voucher</span>
-            <span>- $<span id="voucherMoney">0</span></span>
+            <span>Voucher:</span>
+            <span>- $<span id="voucherMoney">0.00</span></span>
+        </div>
+
+        <hr class="my-2">
+
+        <div class="flex justify-between font-bold">
+            <span>Tạm tính:</span>
+            <span>$<span id="subtotalPrice">0.00</span></span>
         </div>
 
     </div>
@@ -78,71 +116,84 @@
     <!-- TOTAL -->
     <div class="text-center mt-4">
         <p class="text-gray-500">Tổng thanh toán</p>
-
-        <p class="text-2xl font-bold text-green-600">
-            $<span id="totalPrice">0</span>
+        <p class="text-3xl font-bold text-green-600">
+            $<span id="totalPrice">0.00</span>
         </p>
     </div>
 
     <!-- FORM -->
     <form action="/subs/confirm" method="POST" class="mt-5">
-
         <input type="hidden" name="subId" value="<%= sub._id %>">
-
-<input type="hidden" name="quantity" id="hiddenQty" value="1">
-
-<input type="hidden" name="voucher" id="hiddenVoucher" value="0">>
-
-        <button class="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded-lg font-semibold">
+        <input type="hidden" name="quantity" id="hiddenQty" value="<%= currentQuantity || 1 %>">
+        <input type="hidden" name="voucher" id="hiddenVoucher" value="0">
+        
+        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded-lg font-semibold transition transform hover:scale-105">
             Thanh toán ngay
         </button>
-
     </form>
 
 </div>
 
-<!-- SCRIPT -->
 <script>
-const unitPrice = <%= service.price || 0 %>
-const discountRate = <%= service.discount || 0 %>
+// Lấy dữ liệu từ server
+const unitPrice = <%= service.price %> || 0;
+const discountRate = <%= service.discount %> || 0;
+const subId = '<%= sub._id %>';
+
+function formatMoney(value) {
+    return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function changeQty(val) {
-
-    const input = document.getElementById('qty')
-
-    let qty = Number(input.value || 1)
-
-    qty = qty + val
-
-    if (qty < 1) qty = 1
-
-    input.value = qty
-
-    syncHidden()
+    const input = document.getElementById('qty');
+    let qty = Number(input.value || 1);
+    qty = qty + val;
+    if (qty < 1) qty = 1;
+    input.value = qty;
+    updateUI();
 }
 
 function syncHidden() {
-    document.getElementById('hiddenQty').value =
-        document.getElementById('qty').value
+    document.getElementById('hiddenQty').value = document.getElementById('qty').value;
+    document.getElementById('hiddenVoucher').value = document.getElementById('voucher').value || 0;
 }
 
 function updateUI() {
-    const qty = Number(document.getElementById('qty').value || 1)
-    const voucher = Number(document.getElementById('voucher').value || 0)
-
-    const base = unitPrice * qty
-    const discount = base * (discountRate / 100)
-
-    const total = base - discount - voucher
-
-    document.getElementById('basePrice').innerText = base
-    document.getElementById('discountPercent').innerText = discountRate
-    document.getElementById('discountMoney').innerText = discount
-    document.getElementById('voucherMoney').innerText = voucher
-    document.getElementById('totalPrice').innerText = total
-    syncHidden()
+    const qty = Number(document.getElementById('qty').value) || 1;
+    let voucher = Number(document.getElementById('voucher').value) || 0;
+    
+    voucher = Math.max(0, voucher);
+    
+    // Hiển thị đơn giá
+    document.getElementById('unitPriceDisplay').innerText = formatMoney(unitPrice);
+    
+    // Tính toán
+    const base = unitPrice * qty;
+    const discount = base * (discountRate / 100);
+    const subtotal = base - discount;
+    let total = Math.max(0, subtotal - voucher);
+    
+    // Cập nhật UI
+    document.getElementById('basePrice').innerText = formatMoney(base);
+    document.getElementById('discountPercent').innerText = discountRate;
+    document.getElementById('discountMoney').innerText = formatMoney(discount);
+    document.getElementById('voucherMoney').innerText = formatMoney(voucher);
+    document.getElementById('subtotalPrice').innerText = formatMoney(subtotal);
+    document.getElementById('totalPrice').innerText = formatMoney(total);
+    
+    // Nếu voucher lớn hơn subtotal, điều chỉnh
+    if (voucher > subtotal) {
+        document.getElementById('voucher').value = subtotal;
+        document.getElementById('voucherMoney').innerText = formatMoney(subtotal);
+        document.getElementById('totalPrice').innerText = '0.00';
+        total = 0;
+    }
+    
+    syncHidden();
 }
 
-updateUI()
+// Khởi tạo
+updateUI();
 </script>
 
 </body>
