@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Add Service</title>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+    <form
+        action="/subs/create"
+        method="POST"
+        class="bg-white p-8 rounded-2xl shadow w-full max-w-md"
+    >
+
+        <h1 class="text-2xl font-bold mb-6 text-center">
+            Thêm dịch vụ
+        </h1>
+
+        <!-- Name -->
+        <input
+            type="text"
+            name="name"
+            placeholder="Tên dịch vụ"
+            class="border p-3 rounded w-full mb-4"
+            required
+        >
+
+        <!-- Category -->
+        <input
+            type="text"
+            name="category"
+            placeholder="Danh mục"
+            class="border p-3 rounded w-full mb-4"
+        >
+
+        <!-- Price -->
+        <input
+            type="number"
+            name="price"
+            placeholder="Giá"
+            class="border p-3 rounded w-full mb-4"
+            required
+        >
+
+        <!-- Cycle -->
+        <select
+            name="cycle"
+            class="border p-3 rounded w-full mb-4"
+        >
+
+            <option value="Monthly">
+                Monthly
+            </option>
+
+            <option value="Yearly">
+                Yearly
+            </option>
+
+            <option value="Lifetime">
+                Lifetime
+            </option>
+
+        </select>
+
+        <!-- Renewal Date -->
+        <input
+            type="date"
+            name="renewalDate"
+            class="border p-3 rounded w-full mb-4"
+        >
+
+        <!-- Status -->
+        <select
+            name="status"
+            class="border p-3 rounded w-full mb-6"
+        >
+
+            <option value="Còn hạn">
+                Còn hạn
+            </option>
+
+            <option value="Sắp hết">
+                Sắp hết
+            </option>
+
+            <option value="Hết hạn">
+                Hết hạn
+            </option>
+
+        </select>
+
+        <!-- Submit -->
+        <button
+            class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded w-full"
+        >
+            Thêm dịch vụ
+        </button>
+
+    </form>
+
+</body>
+
+</html>

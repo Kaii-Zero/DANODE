@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sửa dịch vụ</title>
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+
+    <form
+        action="/dv/edit/<%= service._id %>"
+        method="POST"
+        class="bg-white p-8 rounded-2xl shadow-xl w-[500px]"
+    >
+
+        <h1 class="text-3xl font-bold text-center mb-6">
+            Sửa dịch vụ
+        </h1>
+
+        <!-- NAME -->
+        <input
+            type="text"
+            name="name"
+            value="<%= service.name %>"
+            placeholder="Tên dịch vụ"
+            class="border p-3 w-full mb-4 rounded"
+            required
+        >
+
+        <!-- PRICE -->
+        <input
+            type="number"
+            name="price"
+            value="<%= service.price %>"
+            placeholder="Giá"
+            class="border p-3 w-full mb-4 rounded"
+            required
+        >
+
+        <!-- TYPE -->
+        <input
+            type="text"
+            name="type"
+            value="<%= service.type %>"
+            placeholder="Loại"
+            class="border p-3 w-full mb-4 rounded"
+        >
+
+        <!-- DISCOUNT -->
+        <input
+            type="number"
+            name="discount"
+            value="<%= service.discount %>"
+            placeholder="Khuyến mãi (%)"
+            class="border p-3 w-full mb-4 rounded"
+        >
+
+        <!-- PACKAGE -->
+        <input
+            type="text"
+            name="package"
+            value="<%= service.package %>"
+            placeholder="Gói"
+            class="border p-3 w-full mb-4 rounded"
+        >
+
+        <!-- PROVIDER -->
+        <input
+            type="text"
+            name="provider"
+            value="<%= service.provider %>"
+            placeholder="Nhà cung cấp"
+            class="border p-3 w-full mb-4 rounded"
+        >
+
+        <!-- LOGO -->
+        <input
+            type="text"
+            name="logo"
+            value="<%= service.logo %>"
+            placeholder="Logo URL"
+            class="border p-3 w-full mb-4 rounded"
+        >
+
+        <!-- DESCRIPTION -->
+        <textarea
+            name="description"
+            class="border p-3 w-full mb-5 rounded"
+            placeholder="Mô tả"
+        ><%= service.description %></textarea>
+
+        <!-- BUTTON -->
+        <button
+            type="submit"
+            class="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded font-semibold"
+        >
+            Cập nhật
+        </button>
+
+    </form>
+
+</body>
+
+</html>

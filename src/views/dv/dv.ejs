@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dịch vụ</title>
+</head>
+
+<body class="bg-gray-100 p-10">
+
+<div class="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow">
+
+    <div class="flex justify-between mb-5">
+
+        <h1 class="text-2xl font-bold">Danh sách dịch vụ</h1>
+
+        <a href="/dv/create" class="bg-blue-500 text-white px-4 py-2 rounded">
+            + Thêm
+        </a>
+
+    </div>
+
+    <table class="w-full text-left border">
+
+        <thead class="bg-gray-200">
+
+            <tr>
+                <th class="p-3">Logo</th>
+                <th class="p-3">Tên</th>
+                <th class="p-3">Giá</th>
+                <th class="p-3">Loại</th>
+                <th class="p-3">KM</th>
+                <th class="p-3">Gói</th>
+                <th class="p-3">Provider</th>
+                <th class="p-3">Action</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <% if (services && services.length > 0) { %>
+
+                <% services.forEach(service => { %>
+
+                    <tr class="border-t">
+
+                        <td class="p-3">
+                            <img src="<%= service.logo %>" class="w-10 h-10 rounded">
+                        </td>
+
+                        <td class="p-3"><%= service.name %></td>
+
+                        <td class="p-3"><%= service.price %></td>
+
+                        <td class="p-3"><%= service.type %></td>
+
+                        <td class="p-3"><%= service.discount || 0 %>%</td>
+
+                        <td class="p-3"><%= service.package %></td>
+
+                        <td class="p-3"><%= service.provider %></td>
+
+                        <td class="p-3">
+
+                            <a href="/dv/edit/<%= service._id %>" class="text-blue-500">Sửa</a>
+
+                            |
+
+                            <a href="/dv/delete/<%= service._id %>" class="text-red-500">Xóa</a>
+
+                        </td>
+
+                    </tr>
+
+                <% }) %>
+
+            <% } else { %>
+
+                <tr>
+                    <td colspan="8" class="text-center p-5 text-gray-500">
+                        Không có dịch vụ
+                    </td>
+                </tr>
+
+            <% } %>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>

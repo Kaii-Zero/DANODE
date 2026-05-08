@@ -1,0 +1,34 @@
+<h2>Danh sách dịch vụ</h2>
+
+<form>
+    <input name="keyword" placeholder="Tìm kiếm..." />
+    <button>Tìm</button>
+</form>
+
+<a href="/subs/add">Thêm</a>
+
+<table border="1">
+<tr>
+    <th>Tên</th>
+    <th>Khách</th>
+    <th>Hết hạn</th>
+    <th>Trạng thái</th>
+    <th>Action</th>
+</tr>
+
+<% subs.forEach(s => { %>
+<tr>
+    <td><%= s.name %></td>
+    <td><%= s.customer %></td>
+    <td><%= s.endDate.toISOString().slice(0,10) %></td>
+    <td><%= s.status %></td>
+    <td>
+        <form method="POST" action="/subs/extend/<%= s._id %>">
+            <input name="days" placeholder="days"/>
+            <button>Gia hạn</button>
+        </form>
+        <a href="/subs/delete/<%= s._id %>">Xóa</a>
+    </td>
+</tr>
+<% }) %>
+</table>

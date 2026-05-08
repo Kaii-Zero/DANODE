@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- Navbar -->
+<div class="flex bg-gray-800 text-white p-4">
+
+    <!-- Trang chủ -->
+    <div class="w-1/3 flex items-center">
+        <a href="/" class="text-xl font-bold">Trang chủ</a>
+    </div>
+
+    <!-- Menu -->
+    <div class="w-2/3 flex justify-around items-center">
+        <a href="/dv" class="hover:text-gray-300">Service</a>
+        <a href="/subs/create" class="hover:text-gray-300">Subscriptions</a>
+        <a href="/login" class="hover:text-gray-300">Login</a>
+        <a href="/register" class="hover:text-gray-300">Register</a>
+    </div>
+
+</div>
+
+<!-- 🔥 QUAN TRỌNG NHẤT -->
+<div class="p-6">
+    <%- body %>
+</div>
+
+</body>
+</html>

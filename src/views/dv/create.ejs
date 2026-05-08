@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Thêm dịch vụ</title>
+
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+
+    <form
+        action="/dv/create"
+        method="POST"
+        class="bg-white p-8 rounded-2xl shadow-xl w-[450px]"
+    >
+
+        <!-- TITLE -->
+        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+            Thêm dịch vụ
+        </h2>
+
+        <!-- TÊN -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Tên dịch vụ
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Netflix Premium"
+                class="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+            >
+        </div>
+
+        <!-- GIÁ -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Giá
+            </label>
+
+            <input
+                type="number"
+                name="price"
+                placeholder="200000"
+                class="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+            >
+        </div>
+
+        <!-- LOẠI -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Loại
+            </label>
+
+            <input
+                type="text"
+                name="type"
+                placeholder="Streaming"
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            >
+        </div>
+
+        <!-- KHUYẾN MÃI -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Khuyến mãi (%)
+            </label>
+
+            <input
+                type="number"
+                name="discount"
+                placeholder="10"
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            >
+        </div>
+
+        <!-- GÓI -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Gói
+            </label>
+
+            <input
+                type="text"
+                name="packageType"
+                placeholder="Premium / Thường"
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            >
+        </div>
+
+        <!-- NHÀ CUNG CẤP -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Nhà cung cấp
+            </label>
+
+            <input
+                type="text"
+                name="provider"
+                placeholder="Netflix"
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            >
+        </div>
+
+        <!-- LOGO -->
+        <div class="mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+                Logo URL
+            </label>
+
+            <input
+                type="text"
+                name="logo"
+                placeholder="https://..."
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            >
+        </div>
+
+        <!-- MÔ TẢ -->
+        <div class="mb-5">
+            <label class="block mb-2 font-medium text-gray-700">
+                Mô tả
+            </label>
+
+            <textarea
+                name="description"
+                rows="4"
+                placeholder="Mô tả dịch vụ..."
+                class="border border-gray-300 p-3 w-full rounded-lg"
+            ></textarea>
+        </div>
+
+        <!-- BUTTON -->
+        <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-600 text-white w-full p-3 rounded-lg font-semibold transition"
+        >
+            Thêm dịch vụ
+        </button>
+
+    </form>
+
+</body>
+
+</html>
