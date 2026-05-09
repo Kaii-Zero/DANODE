@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Temp files
+tmp/
+temp/
+
+# Uploads
+src/publics/uploads/
+src/publics/images/temp/
+
+# Database
+*.db
+*.sqlite
+
+# Session
+sessions/
+
+# Backup
+*.bak
+*.backup
+
+# Package lock (tuỳ chọn)
+# package-lock.json
