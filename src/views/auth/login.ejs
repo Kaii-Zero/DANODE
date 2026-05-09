@@ -1,49 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Đăng nhập</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 class="text-2xl font-bold mb-6 text-center">Đăng nhập</h1>
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-auto" style="animation: fadeInUp 0.5s ease-out;">
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    
+    <!-- Logo -->
+    <div class="text-center mb-6">
+        <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-ticket-alt text-white text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800">Chào mừng</h1>
+        <p class="text-gray-500 mt-2">Đăng nhập để quản lý dịch vụ</p>
+    </div>
+    
+    <!-- Thông báo lỗi -->
+    <% if (typeof error !== 'undefined' && error && error !== 'null') { %>
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded mb-4 flex items-center gap-2">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><%= error %></span>
+        </div>
+    <% } %>
+    
+    <!-- Form -->
+    <form action="/login" method="POST">
+        <div class="mb-4 relative">
+            <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="email" 
+                   name="email" 
+                   class="w-full p-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                   placeholder="Email"
+                   required>
+        </div>
         
-        <% if (typeof error !== 'undefined' && error && error !== 'null') { %>
-            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-                <%= error %>
-            </div>
-        <% } %>
+        <div class="mb-4 relative">
+            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="password" 
+                   name="password" 
+                   class="w-full p-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                   placeholder="Mật khẩu"
+                   required>
+        </div>
         
-        <!-- QUAN TRỌNG: Thêm method POST và action đúng -->
-        <form action="/login" method="POST">
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Email</label>
-                <input type="email" 
-                       name="email" 
-                       id="email"
-                       class="w-full p-2 border rounded focus:outline-none focus:border-blue-500" 
-                       placeholder="example@email.com"
-                       required>
-            </div>
-            
-            <div class="mb-6">
-                <label class="block text-gray-700 mb-2">Mật khẩu</label>
-                <input type="password" 
-                       name="password" 
-                       id="password"
-                       class="w-full p-2 border rounded focus:outline-none focus:border-blue-500" 
-                       placeholder="••••••"
-                       required>
-            </div>
-            
-            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded font-semibold transition">
-                Đăng nhập
-            </button>
-        </form>
+        <div class="flex justify-between items-center mb-6">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="rounded text-blue-500">
+                <span class="text-sm text-gray-600">Ghi nhớ</span>
+            </label>
+            <a href="#" class="text-sm text-blue-500 hover:underline">Quên mật khẩu?</a>
+        </div>
         
-        <p class="mt-4 text-center text-gray-600">
-            Chưa có tài khoản? <a href="/register" class="text-blue-500 hover:underline">Đăng ký</a>
+        <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-3 rounded-xl font-semibold transition transform hover:scale-[1.02]">
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            Đăng nhập
+        </button>
+    </form>
+    
+    <div class="mt-6 text-center">
+        <p class="text-gray-600">
+            Chưa có tài khoản? 
+            <a href="/register" class="text-blue-500 hover:underline font-semibold">Đăng ký</a>
         </p>
     </div>
-</body>
-</html>
+</div>
